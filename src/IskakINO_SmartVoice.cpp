@@ -87,8 +87,4 @@ void IskakINO_SmartVoice::sendRaw(uint8_t cmd, uint8_t high, uint8_t low) {
 
     _voiceSerial->write(packet, 10);
 }
-
-// Global Instance
-IskakINO_SmartVoice IskakVoice;
-
 #endif
