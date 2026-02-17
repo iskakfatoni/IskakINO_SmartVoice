@@ -79,6 +79,6 @@ class IskakINO_SmartVoice {
 };
 
 // Instance global IskakVoice
-extern IskakINO_SmartVoice IskakVoice;
+//extern IskakINO_SmartVoice IskakVoice;
 
 #endif
