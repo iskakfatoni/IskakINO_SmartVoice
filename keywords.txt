@@ -1,0 +1,28 @@
+#######################################
+# Syntax Coloring Map For IskakINO_SmartVoice
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+IskakINO_SmartVoice	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+setVolume	KEYWORD2
+playTrack	KEYWORD2
+playFromFolder	KEYWORD2
+pause	KEYWORD2
+resume	KEYWORD2
+stop	KEYWORD2
+announce	KEYWORD2
+isSDCardReady	KEYWORD2
+isPlaying	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
