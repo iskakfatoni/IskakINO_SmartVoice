@@ -5,17 +5,22 @@
  * kapan sebuah track selesai diputar, lalu otomatis lanjut ke
  * track berikutnya (playlist sederhana), tanpa perlu delay() blocking.
  *
- * Wiring tambahan:
- *   DFPlayer BUSY -> D6 (ESP8266) / GPIO 4 (ESP32)
+ * Wiring tambahan (Arduino Uno / ESP8266 - contoh ini pakai SoftwareSerial;
+ * untuk ESP32 gunakan HardwareSerial seperti pada Example 2):
+ *   DFPlayer RX   -> pin 4
+ *   DFPlayer TX   -> pin 5
+ *   DFPlayer BUSY -> pin 6
  */
 
 #include <SoftwareSerial.h>
 #include <IskakINO_SmartVoice.h>
 
-SoftwareSerial voiceSerial(D7, D8);
-IskakINO_SmartVoice voice;
+const uint8_t VOICE_RX_PIN = 4;
+const uint8_t VOICE_TX_PIN = 5;
+const uint8_t BUSY_PIN = 6;
 
-const uint8_t BUSY_PIN = D6;
+SoftwareSerial voiceSerial(VOICE_RX_PIN, VOICE_TX_PIN);
+IskakINO_SmartVoice voice;
 const uint16_t playlist[] = {1, 2, 3, 4}; // 0001.mp3 - 0004.mp3
 const uint8_t playlistLen = sizeof(playlist) / sizeof(playlist[0]);
 

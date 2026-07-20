@@ -141,12 +141,15 @@ bool IskakINO_SmartVoice::readResponse(uint8_t &cmdOut, uint16_t &paramOut, uint
             frame[idx++] = b;
 
             if (idx >= 10) {
-                if (frame[0] == 0x7E && frame[9] == 0xEF) {
+                uint16_t recvChecksum = ((uint16_t)frame[7] << 8) | frame[8];
+                uint16_t calcChecksum = -(frame[1] + frame[2] + frame[3] + frame[4] + frame[5] + frame[6]);
+
+                if (frame[0] == 0x7E && frame[9] == 0xEF && recvChecksum == calcChecksum) {
                     cmdOut = frame[3];
                     paramOut = ((uint16_t)frame[5] << 8) | frame[6];
                     return true;
                 }
-                idx = 0; // frame tidak valid, coba sinkronisasi ulang
+                idx = 0; // frame tidak valid (termasuk checksum salah), coba sinkronisasi ulang
             }
         }
     }

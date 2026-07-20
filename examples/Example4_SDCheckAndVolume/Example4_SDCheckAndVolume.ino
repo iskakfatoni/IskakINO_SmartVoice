@@ -9,10 +9,15 @@
 #include <SoftwareSerial.h>
 #include <IskakINO_SmartVoice.h>
 
-SoftwareSerial voiceSerial(D7, D8);
+// Contoh ini pakai SoftwareSerial: cocok untuk Arduino Uno / ESP8266.
+// Untuk ESP32, gunakan HardwareSerial seperti pada Example 2.
+const uint8_t VOICE_RX_PIN = 4;
+const uint8_t VOICE_TX_PIN = 5;
+
+SoftwareSerial voiceSerial(VOICE_RX_PIN, VOICE_TX_PIN);
 IskakINO_SmartVoice voice;
 
-const uint8_t POT_PIN = A0;
+const uint8_t POT_PIN = A0; // A0 tersedia sebagai pin analog standar di semua board
 bool sdReady = false;
 
 bool waitForSDCard(uint8_t maxRetry, uint16_t delayBetweenMs) {
