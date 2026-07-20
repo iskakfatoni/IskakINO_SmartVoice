@@ -1,0 +1,93 @@
+name: Arduino CI
+
+on:
+  push:
+    paths:
+      - 'src/**'
+      - 'examples/**'
+      - 'library.properties'
+      - 'keywords.txt'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'examples/**'
+      - 'library.properties'
+      - 'keywords.txt'
+
+jobs:
+  lint:
+    name: Arduino Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Arduino Lint
+        uses: arduino/arduino-lint-action@v1
+        with:
+          library-manager: update
+          compliance: strict
+
+  build:
+    name: Compile Examples
+    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - "arduino:avr:uno"
+          - "esp32:esp32:esp32"
+          - "esp8266:esp8266:nodemcuv2"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Arduino CLI
+        uses: arduino/setup-arduino-cli@v1
+
+      - name: Configure Board URLs
+        run: |
+          arduino-cli config init
+          arduino-cli config add board_manager.additional_urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli config add board_manager.additional_urls https://arduino.esp8266.com/stable/package_esp8266com_index.json
+
+      - name: Update index
+        run: arduino-cli core update-index
+
+      - name: Install cores
+        run: |
+          arduino-cli core install arduino:avr
+          arduino-cli core install esp32:esp32
+          arduino-cli core install esp8266:esp8266
+
+      - name: Compile examples
+        run: |
+          # Dapatkan path absolut dari root library untuk memastikan compiler menemukan folder src
+          LIB_PATH=$(pwd)
+          echo "Library Path: $LIB_PATH"
+          echo "Board Target: ${{ matrix.board }}"
+
+          # Cari semua file .ino di folder examples secara rekursif
+          for example in $(find examples -name "*.ino"); do
+
+            # Example2_FolderPlayback memakai HardwareSerial UART2 khas ESP32
+            # (begin() dengan RX/TX pin custom) -> hanya valid di ESP32.
+            if [[ "$example" == *Example2_FolderPlayback* ]] && [[ "${{ matrix.board }}" != "esp32:esp32:esp32" ]]; then
+              echo "Skipping $example (ESP32 only - HardwareSerial UART2 API)"
+              continue
+            fi
+
+            # Example lain memakai SoftwareSerial, yang tidak tersedia
+            # secara default di ESP32 core -> skip di ESP32.
+            if [[ "$example" != *Example2_FolderPlayback* ]] && [[ "${{ matrix.board }}" == "esp32:esp32:esp32" ]]; then
+              echo "Skipping $example (SoftwareSerial tidak tersedia default di ESP32 core)"
+              continue
+            fi
+
+            echo "-------------------------------------------------------"
+            echo "Compiling: $example"
+            # Flag --library "$LIB_PATH" memaksa compiler mencari header di root/src
+            arduino-cli compile --fqbn ${{ matrix.board }} --library "$LIB_PATH" "$example"
+          done
